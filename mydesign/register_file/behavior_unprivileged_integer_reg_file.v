@@ -15,25 +15,21 @@ module unprivileged_integer_reg_file#(
 
 );
 
-reg [WIDTH-1:0] register [0:31]; 
+reg [WIDTH-1:0] register [0:31];
 
-assign register[0] = 0;
-
-generate
-    genvar i;
-    for (i = 1; i<32; i = i + 1) begin: REGISTER_INSTANCE
-        always_ff @(posedge clk or negedge reset_n) begin
-            if (reset_n == 0) begin
-                register [i] <= 0;
-            end else begin
-                if (rd_address == i) 
-                    register[i] <= rd_data;
-                else 
-                    register[i] <= register[i];
-            end
+always_ff @(posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+        integer i;
+        for (i = 0; i < WIDTH; i = i + 1) begin
+            register[i] <= {WIDTH{1'b0}};
+        end
+    end else begin
+        if (rd_address != 0) begin
+            register[rd_address] <= rd_data;
         end
     end
-endgenerate
+end
+
 
 assign rs1_data = register[rs1_address];
 assign rs2_data = register[rs2_address];
