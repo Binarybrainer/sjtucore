@@ -1,5 +1,5 @@
 //status: complete, behavioral, unverify
-module instruction_decode (
+module rv64_format (
 
     input [31:0] instr,
     
@@ -22,28 +22,29 @@ module instruction_decode (
     parameter B_TYPE = 3'b011;
     parameter U_TYPE = 3'b100;
     parameter J_TYPE = 3'b101;
+    parameter R4_TYPE = 3'b110;
 
 
     parameter LOAD     = 5'b00000;//
     parameter STORE    = 5'b01000;//
-    //parameter MADD     = 5'b10000;
+    parameter MADD     = 5'b10000;
     parameter BRANCH   = 5'b11000;//
     
-    //parameter LOAD_FP  = 5'b00001;
-    //parameter STORE_FP = 5'b01001;
-    //parameter MSUB     = 5'b10001;
+    parameter LOAD_FP  = 5'b00001;
+    parameter STORE_FP = 5'b01001;
+    parameter MSUB     = 5'b10001;
     parameter JALR     = 5'b11001;//
     
-    //parameter NMSUB    = 5'b10010;
+    parameter NMSUB    = 5'b10010;
     
     parameter MISC_MEM = 5'b00011;//
-    //parameter AMO      = 5'b01011;
-    //parameter NMADD    = 5'b10011;
+    parameter AMO      = 5'b01011;
+    parameter NMADD    = 5'b10011;
     parameter JAL      = 5'b11011;//
     
     parameter OP_IMM   = 5'b00100;//
     parameter OP       = 5'b01100;//
-    //parameter OP_FP    = 5'b10100;
+    parameter OP_FP    = 5'b10100;
     parameter SYSTEM   = 5'b11100;
     
     parameter AUIPC    = 5'b00101;//
@@ -51,8 +52,8 @@ module instruction_decode (
     //parameter OP_V     = 5'b10101;
     //parameter OP_VE    = 5'b11101;
     
-    //parameter OP_IMM_32 = 5'b00110;
-    //parameter OP_32     = 5'b01110;
+    parameter OP_IMM_32 = 5'b00110;
+    parameter OP_32     = 5'b01110;
 
     assign opcode   = instr[6:0];
     assign rd_addr  = instr[11:7];
@@ -87,13 +88,31 @@ module instruction_decode (
             
             BRANCH: optype = B_TYPE;
             LOAD  : optype = I_TYPE;
-            STORE : optype = I_TYPE;
+            STORE : optype = S_TYPE;
 
             OP_IMM: optype = I_TYPE;
             OP    : optype = R_TYPE;
 
             MISC_MEM : optype = I_TYPE;
             SYSTEM   : optype = I_TYPE;
+
+            //RV64I extension
+            OP_IMM_32: optype = I_TYPE;
+            OP_32    : optype = R_TYPE;
+
+            //RV32A, RV64A extension
+            AMO : optype = R_TYPE;
+
+            //RV32F, RV64F extension
+            LOAD_FP : optype = I_TYPE;
+            STORE_FP: optype = S_TYPE;
+            
+            MADD    : optype = R4_TYPE;
+            MSUB    : optype = R4_TYPE;
+            NMADD   : optype = R4_TYPE;
+            NMSUB   : optype = R4_TYPE;
+
+            OP_FP   : optype = R_TYPE;
 
             default: optype = 3'b000;
         endcase    
