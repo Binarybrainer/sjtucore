@@ -49,8 +49,8 @@ module rv64_format (
     
     parameter AUIPC    = 5'b00101;//
     parameter LUI      = 5'b01101;//
-    //parameter OP_V     = 5'b10101;
-    //parameter OP_VE    = 5'b11101;
+    parameter OP_V     = 5'b10101;
+    parameter OP_VE    = 5'b11101;
     
     parameter OP_IMM_32 = 5'b00110;
     parameter OP_32     = 5'b01110;
@@ -113,6 +113,10 @@ module rv64_format (
             NMSUB   : optype = R4_TYPE;
 
             OP_FP   : optype = R_TYPE;
+
+            // Vector extension
+            OP_V    : optype = R_TYPE;
+            OP_VE   : optype = R_TYPE;
 
             default: optype = 3'b000;
         endcase    
