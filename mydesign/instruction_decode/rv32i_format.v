@@ -1,4 +1,4 @@
-//status: incomplete, behavioral
+//status: complete, behavioral, unverify
 module instruction_decode (
 
     input [31:0] instr,
@@ -9,11 +9,12 @@ module instruction_decode (
 
     output [6:0] opcode,
 
-    output [31:0] imm
+    output [31:0] imm,
+
+    output [2:0] func3,
+    output [6:0] func7
 
 );
-    wire [2:0] func3;
-    wire [6:0] func7;
 
     parameter R_TYPE = 3'b000;
     parameter I_TYPE = 3'b001;
@@ -25,33 +26,33 @@ module instruction_decode (
 
     parameter LOAD     = 5'b00000;//
     parameter STORE    = 5'b01000;//
-    parameter MADD     = 5'b10000;
+    //parameter MADD     = 5'b10000;
     parameter BRANCH   = 5'b11000;//
     
-    parameter LOAD_FP  = 5'b00001;
-    parameter STORE_FP = 5'b01001;
-    parameter MSUB     = 5'b10001;
+    //parameter LOAD_FP  = 5'b00001;
+    //parameter STORE_FP = 5'b01001;
+    //parameter MSUB     = 5'b10001;
     parameter JALR     = 5'b11001;//
     
-    parameter NMSUB    = 5'b10010;
+    //parameter NMSUB    = 5'b10010;
     
     parameter MISC_MEM = 5'b00011;//
-    parameter AMO      = 5'b01011;
-    parameter NMADD    = 5'b10011;
+    //parameter AMO      = 5'b01011;
+    //parameter NMADD    = 5'b10011;
     parameter JAL      = 5'b11011;//
     
     parameter OP_IMM   = 5'b00100;//
     parameter OP       = 5'b01100;//
-    parameter OP_FP    = 5'b10100;
+    //parameter OP_FP    = 5'b10100;
     parameter SYSTEM   = 5'b11100;
     
     parameter AUIPC    = 5'b00101;//
     parameter LUI      = 5'b01101;//
-    parameter OP_V     = 5'b10101;
-    parameter OP_VE    = 5'b11101;
+    //parameter OP_V     = 5'b10101;
+    //parameter OP_VE    = 5'b11101;
     
-    parameter OP_IMM_32 = 5'b00110;
-    parameter OP_32     = 5'b01110;
+    //parameter OP_IMM_32 = 5'b00110;
+    //parameter OP_32     = 5'b01110;
 
     assign opcode   = instr[6:0];
     assign rd_addr  = instr[11:7];
@@ -68,45 +69,50 @@ module instruction_decode (
     wire [31:0] B_IMM;
     wire [31:0] J_IMM;
 
-    assign I_IMM = {20{instr[31]},instr[30:20]};
-    assign S_IMM = {20{instr[31]},instr[30:25], instr[11:7]};
+    assign I_IMM = {{21{instr[31]}}, instr[30:20]};
+    assign S_IMM = {{21{instr[31]}}, instr[30:25], instr[11:7]};
     assign U_IMM = {instr[31:12],12'b0};
-    assign B_IMM  = {20{instr[31]}, instr[7], instr[30:25], instr[11:8], 1'b0};
-    assign J_IMM  = {instr[31], instr[19:12], instr[20], instr[30:21], 1'b0}; 
+    assign B_IMM  = {{20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0};
+    assign J_IMM  = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0}; 
 
-    wire [2:0] type;
+    reg [2:0] optype;
 
     always @(*) begin
-        case(opcode[6:2])
-            LUI  : type = U_TYPE;
-            AUIPC: type = U_TYPE;
+        case (opcode[6:2])
+            LUI  : optype = U_TYPE;
+            AUIPC: optype = U_TYPE;
 
-            JAL   : type = J_TYPE;
-            JALR  : type = I_TYPE;
+            JAL   : optype = J_TYPE;
+            JALR  : optype = I_TYPE;
             
-            BRANCH: type = B_TYPE;
-            LOAD  : type = I_TYPE;
-            STORE : type = I_TYPE;
+            BRANCH: optype = B_TYPE;
+            LOAD  : optype = I_TYPE;
+            STORE : optype = I_TYPE;
 
-            OP_IMM: type = I_TYPE;
-            OP    : type = R_TYPE;
+            OP_IMM: optype = I_TYPE;
+            OP    : optype = R_TYPE;
 
-            MISC_MEM : type = I_TYPE;
-            SYSTEM   : type = I_TYPE;
+            MISC_MEM : optype = I_TYPE;
+            SYSTEM   : optype = I_TYPE;
+
+            default: optype = 3'b000;
         endcase    
     end
 
+    reg [31:0] imm_reg;
     always @(*) begin
-        case(type)
-            R_TYPE: imm = 32'b0;
-            J_TYPE: imm = J_IMM;
-            I_TYPE: imm = I_IMM;
-            B_TYPE: imm = B_IMM;
-            U_TYPE: imm = U_IMM;
-            S_TYPE: imm = S_IMM;
-
+        case (optype) 
+            R_TYPE: imm_reg = 32'b0;
+            J_TYPE: imm_reg = J_IMM;
+            I_TYPE: imm_reg = I_IMM;
+            B_TYPE: imm_reg = B_IMM;
+            U_TYPE: imm_reg = U_IMM;
+            S_TYPE: imm_reg = S_IMM;
+            default: imm_reg = 32'b0;
         endcase    
     end
+
+    assign imm = imm_reg;
 
 
 endmodule
