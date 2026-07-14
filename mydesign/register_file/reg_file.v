@@ -1,6 +1,6 @@
 // status: draft, unverify, unoptimize
 
-module unprivileged_integer_reg_file#(
+module reg_file#(
     parameter WIDTH = 32
 ) (
     input clk,
