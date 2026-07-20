@@ -504,7 +504,6 @@ Nếu bạn muốn, tôi có thể cập nhật các mục này vào risc-v-plan
 
 Nếu hoàn thành được toàn bộ, đây là một portfolio ở mức rất cao, tương đương một dự án nghiên cứu kéo dài nhiều năm.
 
----
 
 # Điểm mạnh
 
@@ -1161,6 +1160,5 @@ Lợi ích:
 4. **Compiler Infrastructure** (Intermediate Representation, LibC, Debug Tools).
 
 Nếu bổ sung các phần này, RVPRO32 sẽ không chỉ là một CPU RISC-V tự viết mà sẽ trở thành **một nền tảng nghiên cứu và phát triển hoàn chỉnh**, bao phủ toàn bộ chuỗi từ **ISA → RTL → SoC → Toolchain → Operating System → FPGA Validation**.
-````
 
 
